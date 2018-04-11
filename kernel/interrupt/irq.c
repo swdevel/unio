@@ -1,7 +1,7 @@
-#include "irq.h"
+п»ї#include "irq.h"
 
 /*
-	Функция установки вектора прерывания.
+	Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё РІРµРєС‚РѕСЂР° РїСЂРµСЂС‹РІР°РЅРёСЏ.
 */
 static void irq_set_interrupt_handler(uchar vector, uchar type, void(*func))
 {
@@ -30,7 +30,7 @@ static void irq_set_interrupt_handler(uchar vector, uchar type, void(*func))
 }
 
 /*
-	Обработчик прерывания от системного таймера.
+	РћР±СЂР°Р±РѕС‚С‡РёРє РїСЂРµСЂС‹РІР°РЅРёСЏ РѕС‚ СЃРёСЃС‚РµРјРЅРѕРіРѕ С‚Р°Р№РјРµСЂР°.
 */
 static void irq_on_timer_handler()
 {
@@ -46,7 +46,7 @@ static void irq_on_timer_handler()
 }
 
 /*
-	Обработчик прерывания от клавиатуры.
+	РћР±СЂР°Р±РѕС‚С‡РёРє РїСЂРµСЂС‹РІР°РЅРёСЏ РѕС‚ РєР»Р°РІРёР°С‚СѓСЂС‹.
 */
 static void irq_on_keyboard_handler()
 {
@@ -62,7 +62,7 @@ static void irq_on_keyboard_handler()
 }
 
 /*
-	Обработчик прерывания page fault
+	РћР±СЂР°Р±РѕС‚С‡РёРє РїСЂРµСЂС‹РІР°РЅРёСЏ page fault
 */
 static void irq_on_page_fault_handler()
 {
@@ -82,21 +82,21 @@ void irq_init()
 	s16int *limit;
 	s16int *addr;
 
-	// Запрет прерываний
+	// Р—Р°РїСЂРµС‚ РїСЂРµСЂС‹РІР°РЅРёР№
 	asm("cli");
 
-	// Инициализация векторов прерываний обработчиками
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РІРµРєС‚РѕСЂРѕРІ РїСЂРµСЂС‹РІР°РЅРёР№ РѕР±СЂР°Р±РѕС‚С‡РёРєР°РјРё
 	irq_set_interrupt_handler(IRQ0, IRQ_GATEWAY_TYPE_INT, irq_on_timer_handler);
 	irq_set_interrupt_handler(IRQ1, IRQ_GATEWAY_TYPE_INT, irq_on_keyboard_handler);
 	irq_set_interrupt_handler(IRQ14, IRQ_GATEWAY_TYPE_INT, irq_on_page_fault_handler);
 
-	// Запись в регистр IDTR адреса и размера IDT
+	// Р—Р°РїРёСЃСЊ РІ СЂРµРіРёСЃС‚СЂ IDTR Р°РґСЂРµСЃР° Рё СЂР°Р·РјРµСЂР° IDT
 	limit = (s16int*)IRQ_IDTR_ADDR;
 	addr = (s16int*)IRQ_IDTR_ADDR + 2;
 	*limit = 256 * 8 - 1;
 	*addr = IRQ_DESC_TABLE_ADDR;
 	asm("lidt 0(,%0,)" :: "a" (IRQ_IDTR_ADDR));
 
-	// Разрешение прерываний
+	// Р Р°Р·СЂРµС€РµРЅРёРµ РїСЂРµСЂС‹РІР°РЅРёР№
 	asm("sti");
 }

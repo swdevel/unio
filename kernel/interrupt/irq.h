@@ -1,15 +1,15 @@
-#ifndef _IRQ_H_
+п»ї#ifndef _IRQ_H_
 #define _IRQ_H_
 
 #include "../common/common.h"
 
-// Адрес таблицы дескрипторов прерываний (IDT)
+// РђРґСЂРµСЃ С‚Р°Р±Р»РёС†С‹ РґРµСЃРєСЂРёРїС‚РѕСЂРѕРІ РїСЂРµСЂС‹РІР°РЅРёР№ (IDT)
 #define IRQ_DESC_TABLE_ADDR		0x00000000
-// Адрес регистра IDTR (служит для хранения адреса IDT и её длины в байтах)
+// РђРґСЂРµСЃ СЂРµРіРёСЃС‚СЂР° IDTR (СЃР»СѓР¶РёС‚ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р°РґСЂРµСЃР° IDT Рё РµС‘ РґР»РёРЅС‹ РІ Р±Р°Р№С‚Р°С…)
 #define IRQ_IDTR_ADDR			0x00100800
 
-#define IRQ0	0x20	// Прерывание от системного таймера
-#define IRQ1	0x21	// Прерывание от клавиатуры
+#define IRQ0	0x20	// РџСЂРµСЂС‹РІР°РЅРёРµ РѕС‚ СЃРёСЃС‚РµРјРЅРѕРіРѕ С‚Р°Р№РјРµСЂР°
+#define IRQ1	0x21	// РџСЂРµСЂС‹РІР°РЅРёРµ РѕС‚ РєР»Р°РІРёР°С‚СѓСЂС‹
 #define IRQ2
 #define IRQ3
 #define IRQ4
@@ -22,14 +22,14 @@
 #define IRQ11
 #define IRQ12
 #define IRQ13
-#define IRQ14	0x0E	// Прерывание Page fault
+#define IRQ14	0x0E	// РџСЂРµСЂС‹РІР°РЅРёРµ Page fault
 #define IRQ15
 
-// Типы шлюза
-#define IRQ_GATEWAY_TYPE_INT	0x8E // Прерывание
-#define IRQ_GATEWAY_TYPE_TRAP	0x8F // Ловушка
+// РўРёРїС‹ С€Р»СЋР·Р°
+#define IRQ_GATEWAY_TYPE_INT	0x8E // РџСЂРµСЂС‹РІР°РЅРёРµ
+#define IRQ_GATEWAY_TYPE_TRAP	0x8F // Р›РѕРІСѓС€РєР°
 
-// Типы селектора
+// РўРёРїС‹ СЃРµР»РµРєС‚РѕСЂР°
 #define IRQ_SELECTOR_TYPE_CODE	0x08
 
 void irq_init();

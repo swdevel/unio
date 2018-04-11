@@ -1,4 +1,4 @@
-#ifndef _ENTRY_H_
+﻿#ifndef _ENTRY_H_
 #define _ENTRY_H_
 
 // common
