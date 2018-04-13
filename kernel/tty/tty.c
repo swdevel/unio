@@ -21,8 +21,6 @@ static void tty_scroll()
 		*(fb_addr + i * 2) = 0x20; // Код символа "пробел"
 		*(fb_addr + i * 2 + 1) = tty_params.color;
 	}
-
-	tty_cursor_move_to(tty_params.cursor.x, tty_params.cursor.y);
 }
 
 /*
@@ -38,7 +36,7 @@ void tty_cursor_move_to(u16int x, u16int y)
 	tty_params.cursor.x = x;
 	tty_params.cursor.y = y;
 
-	position = tty_params.cursor.y * TTY_CONSOLE_HEIGHT + tty_params.cursor.x;
+	position = tty_params.cursor.y * TTY_CONSOLE_WIDTH + tty_params.cursor.x;
 	// Установка младшего байта позиции курсора
 	outb(0x3D4, 0x0F); 
 	outb(0x3D5, position & 0xFF);
@@ -105,6 +103,7 @@ void tty_put_char(char c)
 	// Скролл экрана
 	if (tty_params.cursor.y >= TTY_CONSOLE_HEIGHT)
 		tty_scroll();
+	tty_cursor_move_to(tty_params.cursor.x, tty_params.cursor.y);
 }
 
 /*
