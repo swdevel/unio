@@ -6,5 +6,6 @@
 
 // interrupt
 #include "interrupt\irq.h"
+#include "tty\tty.h"
 
 #endif /* _ENTRY_H_ */
