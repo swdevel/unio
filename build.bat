@@ -4,7 +4,7 @@ rem Set paths
 set CC="C:\MinGW\bin\gcc.exe"
 set LD="C:\MinGW\bin\ld.exe"
 set NASM="C:\Program Files\NASM\nasm.exe"
-set OBJCOPY="C:\Program Files\MinGW\bin\objcopy.exe"
+set OBJCOPY="C:\MinGW\bin\objcopy.exe"
 
 rem Set build directory
 set BUILD_DIR=build
@@ -21,6 +21,8 @@ rem Build the kernel
 %CC% -ffreestanding -c -o %BUILD_DIR%\tty.o %KERNEL_DIR%\tty\tty.c
 
 %LD% -Ttext 0x200000 -o %BUILD_DIR%\kernel.bin %BUILD_DIR%\entry.o %BUILD_DIR%\irq.o %BUILD_DIR%\tty.o
+
+%OBJCOPY% %BUILD_DIR%\kernel.bin -O binary
 
 rem Build the secondary bootloader and compile together with kernel
 %NASM% -fbin -o %BUILD_DIR%\secondary.bin %BOOT_DIR%\secondary.asm
