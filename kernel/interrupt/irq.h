@@ -2,6 +2,7 @@
 #define _IRQ_H_
 
 #include "../common/common.h"
+#include "../keyboard/keyboard.h"
 
 // Адрес таблицы дескрипторов прерываний (IDT)
 #define IRQ_DESC_TABLE_ADDR		0x00000000

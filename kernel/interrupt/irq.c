@@ -7,7 +7,6 @@ static void irq_set_interrupt_handler(uchar vector, uchar type, void(*func))
 {
 	char *ptr = (char*)IRQ_DESC_TABLE_ADDR;
 	char byte[8];
-	int i;
 
 	if (type != IRQ_GATEWAY_TYPE_INT &&
 		type != IRQ_GATEWAY_TYPE_TRAP)
@@ -25,7 +24,7 @@ static void irq_set_interrupt_handler(uchar vector, uchar type, void(*func))
 	byte[6] = ((u32int)func & 0x00FF0000) >> 16;
 	byte[7] = ((u32int)func & 0xFF000000) >> 24;
 
-	for (i = 0; i < 8; i++)
+	for (int i = 0; i < 8; i++)
 		*(ptr + vector * 8 + i) = byte[i];
 }
 
@@ -52,7 +51,7 @@ static void irq_on_keyboard_handler()
 {
 	asm("pusha");
 
-	// TODO:
+	keyboard_dispatcher();
 
 	asm("popa");
 	asm("movb $0x20, %al");

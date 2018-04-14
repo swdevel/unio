@@ -54,4 +54,9 @@ inline static void outw(u16int port, u16int value)
 	asm volatile("outw %1, %0" : : "dN" (port), "a" (value));
 }
 
+/* Макросы для работы с битовыми масками */
+#define SetFlag(v, f)       (v |= (1 << f))
+#define ClearFlag(v, f)     (v &= ~(1 << f))
+#define CheckFlag(v, f)     (v & (1 << f))
+
 #endif /* _COMMON_H_ */
