@@ -42,11 +42,11 @@ char * strcpy(char *dest, const char *src)
 
 char * strcat(char *dest, const char *src)
 {
-	char * ptr = dst;
+	char * ptr = dest;
 
-	while (*dst)
-		*dst++;
-	while (*dst++ = *src++);
+	while (*dest)
+		*dest++;
+	while (*dest++ = *src++);
 	return ptr;
 }
 
