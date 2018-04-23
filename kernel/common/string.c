@@ -31,3 +31,30 @@ int memcmp(const void *str1, const void *str2, size_t count)
 	}
 	return 0;
 }
+
+char * strcpy(char *dest, const char *src)
+{
+	char *ptr = dest;
+
+	while (*dest++ = *src++);
+	return ptr;
+}
+
+char * strcat(char *dest, const char *src)
+{
+	char * ptr = dst;
+
+	while (*dst)
+		*dst++;
+	while (*dst++ = *src++);
+	return ptr;
+}
+
+size_t strlen(const char *str)
+{
+	char * ptr = (char*)str;
+
+	while (*ptr)
+		*ptr++;
+	return ptr - str;
+}
