@@ -21,7 +21,10 @@ rem Build the kernel
 %CC% -ffreestanding -c -o %BUILD_DIR%\tty.o %KERNEL_DIR%\tty\tty.c
 %CC% -ffreestanding -c -o %BUILD_DIR%\keyboard.o %KERNEL_DIR%\keyboard\keyboard.c
 
-%LD% -Ttext 0x200000 -o %BUILD_DIR%\kernel.bin %BUILD_DIR%\entry.o %BUILD_DIR%\irq.o %BUILD_DIR%\tty.o %BUILD_DIR%\keyboard.o
+rem Build common functions
+%CC% -ffreestanding -c -o %BUILD_DIR%\string.o %KERNEL_DIR%\common\string.c
+
+%LD% -Ttext 0x200000 -o %BUILD_DIR%\kernel.bin %BUILD_DIR%\entry.o %BUILD_DIR%\irq.o %BUILD_DIR%\tty.o %BUILD_DIR%\keyboard.o %BUILD_DIR%\string.o
 
 %OBJCOPY% %BUILD_DIR%\kernel.bin -O binary
 
