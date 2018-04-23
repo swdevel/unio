@@ -23,8 +23,9 @@ rem Build the kernel
 
 rem Build common functions
 %CC% -ffreestanding -c -o %BUILD_DIR%\string.o %KERNEL_DIR%\common\string.c
+%CC% -ffreestanding -c -o %BUILD_DIR%\stdlib.o %KERNEL_DIR%\common\stdlib.c
 
-%LD% -Ttext 0x200000 -o %BUILD_DIR%\kernel.bin %BUILD_DIR%\entry.o %BUILD_DIR%\irq.o %BUILD_DIR%\tty.o %BUILD_DIR%\keyboard.o %BUILD_DIR%\string.o
+%LD% -Ttext 0x200000 -o %BUILD_DIR%\kernel.bin %BUILD_DIR%\entry.o %BUILD_DIR%\irq.o %BUILD_DIR%\tty.o %BUILD_DIR%\keyboard.o %BUILD_DIR%\string.o %BUILD_DIR%\stdlib.o
 
 %OBJCOPY% %BUILD_DIR%\kernel.bin -O binary
 

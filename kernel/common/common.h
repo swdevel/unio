@@ -13,6 +13,11 @@
 	#define FALSE 0
 #endif
 
+#ifndef CHAR_BIT
+	#define CHAR_BIT 8
+#endif
+
+
 typedef unsigned int   u32int;
 typedef int            s32int;
 typedef unsigned short u16int;
