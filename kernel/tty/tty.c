@@ -1,7 +1,7 @@
 ﻿#include "tty.h"
 
 TTY_PARAMS tty_params = {{0, 0}, TTY_COLOR_BLACK << 4 | TTY_COLOR_LIGHTGREEN};
-s8int *fb_addr = (s8int*)TTY_FRAME_BUFFER_ADDR;
+s16int *fb_addr = (s16int*)TTY_FRAME_BUFFER_ADDR;
 
 /*
 	Функция скролла экрана
@@ -9,19 +9,18 @@ s8int *fb_addr = (s8int*)TTY_FRAME_BUFFER_ADDR;
 static void tty_scroll()
 {
 	int size = TTY_CONSOLE_WIDTH * (TTY_CONSOLE_HEIGHT - 1);
+	u8int blank = 0x20; // Код символа "пробел"
 
-	for (int i = 0; i < size; i++)
+	if (tty_params.cursor.y >= TTY_CONSOLE_HEIGHT)
 	{
-		*(fb_addr + i * 2) = *(fb_addr + ((i + TTY_CONSOLE_WIDTH) * 2));
-		*(fb_addr + i * 2 + 1) = *(fb_addr + ((i + TTY_CONSOLE_WIDTH) * 2) + 1);
-	}
+		for (int i = 0; i < size; i++)
+			fb_addr[i] = fb_addr[i + TTY_CONSOLE_WIDTH];
 
-	for (int i = size; i < TTY_CONSOLE_WIDTH * TTY_CONSOLE_HEIGHT; i++)
-	{
-		*(fb_addr + i * 2) = 0x20; // Код символа "пробел"
-		*(fb_addr + i * 2 + 1) = tty_params.color;
+		for (int i = size; i < TTY_CONSOLE_WIDTH * TTY_CONSOLE_HEIGHT; i++)
+			fb_addr[i] = blank | (tty_params.color << 8);
+
+		tty_params.cursor.y = TTY_CONSOLE_HEIGHT - 1;
 	}
-	tty_params.cursor.y = TTY_CONSOLE_HEIGHT - 1;
 }
 
 /*
@@ -51,11 +50,11 @@ void tty_cursor_move_to(u16int x, u16int y)
 */
 void tty_clear_screen()
 {
+	u8int blank = 0x20; // Код символа "пробел"
+
 	for (int i = 0; i < TTY_CONSOLE_WIDTH * TTY_CONSOLE_HEIGHT; i++)
-	{
-		*(fb_addr + i * 2) = 0x20; // Код символа "пробел"
-		*(fb_addr + i * 2 + 1) = tty_params.color;
-	}
+		fb_addr[i] = blank | (tty_params.color << 8);
+
 	tty_cursor_move_to(0, 0);
 }
 
@@ -89,8 +88,7 @@ void tty_put_char(char c)
 	default:
 		// Вывод всех остальных символов
 		offset = tty_params.cursor.x + tty_params.cursor.y * TTY_CONSOLE_WIDTH;
-		*(fb_addr + offset * 2) = c;
-		*(fb_addr + offset * 2 + 1) = tty_params.color;
+		fb_addr[offset] = c | (tty_params.color << 8);
 		tty_params.cursor.x++;
 		break;
 	}
