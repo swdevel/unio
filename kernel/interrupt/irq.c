@@ -8,12 +8,12 @@ static void irq_set_interrupt_handler(uchar vector, uchar type, void(*func))
 	char *ptr = (char*)IRQ_DESC_TABLE_ADDR;
 	char byte[8];
 
-	if (type != IRQ_GATEWAY_TYPE_INT &&
-		type != IRQ_GATEWAY_TYPE_TRAP)
-		return;
+    if (type != IRQ_GATEWAY_TYPE_INT &&
+        type != IRQ_GATEWAY_TYPE_TRAP)
+        return;
 
-	if (!func)
-		return;
+    if (!func)
+        return;
 
 	byte[0] = (u32int)func & 0x000000FF;
 	byte[1] = ((u32int)func & 0x0000FF00) >> 8;
@@ -24,8 +24,8 @@ static void irq_set_interrupt_handler(uchar vector, uchar type, void(*func))
 	byte[6] = ((u32int)func & 0x00FF0000) >> 16;
 	byte[7] = ((u32int)func & 0xFF000000) >> 24;
 
-	for (int i = 0; i < 8; i++)
-		*(ptr + vector * 8 + i) = byte[i];
+    for (int i = 0; i < 8; i++)
+        *(ptr + vector * 8 + i) = byte[i];
 }
 
 /*
