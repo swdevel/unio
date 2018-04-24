@@ -21,7 +21,7 @@ static char * put_dec_dword(char *buf, int dword)
 	char table[] = "0123456789";
 	char tmp[64];
 	int negative = FALSE;
-	int len;
+	int len = 0;
 
 	if (dword < 0)
 	{
@@ -29,18 +29,17 @@ static char * put_dec_dword(char *buf, int dword)
 		dword = abs(dword);
 	}
 
-	for (len = 0; dword; len++)
+	do
 	{
 		tmp[len] = table[dword % 10];
-		tmp[len + 1] = '\0';
+		tmp[++len] = '\0';
 		dword /= 10;
-	}
+	} while (dword);
 
 	if (negative)
 	{
 		tmp[len] = '-';
-		tmp[len + 1] = '\0';
-		len++;
+		tmp[++len] = '\0';
 	}
 
 	for (int i = len - 1; i >= 0; i--)
@@ -111,7 +110,7 @@ static int vsprintf(char *buf, const char *format, va_list args)
 			buf = put_char(buf, *format);
 	}
 
-	return ptr - buf;
+	return buf - ptr;
 }
 
 int sprintf(char *str, const char *format, ...)
