@@ -59,9 +59,22 @@ inline static void outw(u16int port, u16int value)
 	asm volatile("outw %1, %0" : : "dN" (port), "a" (value));
 }
 
+static inline void inl(u16int port, u32int * data)
+{
+	asm volatile ("inl %%dx, %%eax" : "=a" (*data) : "d" (port));
+}
+
+static inline void outl(u16int port, u32int data)
+{
+	asm volatile ("outl %%eax, %%dx" : : "a" (data), "d" (port));
+}
+
 /* Макросы для работы с битовыми масками */
 #define SetFlag(v, f)       (v |= (1 << f))
 #define ClearFlag(v, f)     (v &= ~(1 << f))
 #define CheckFlag(v, f)     (v & (1 << f))
+
+/* Макрос для подсчёта количества элементов в статическом массиве */
+#define COUNT(v) (sizeof(v)/sizeof(v[0]))
 
 #endif /* _COMMON_H_ */
