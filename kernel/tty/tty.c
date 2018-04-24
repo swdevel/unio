@@ -21,6 +21,7 @@ static void tty_scroll()
 		*(fb_addr + i * 2) = 0x20; // Код символа "пробел"
 		*(fb_addr + i * 2 + 1) = tty_params.color;
 	}
+	tty_params.cursor.y = TTY_CONSOLE_HEIGHT - 1;
 }
 
 /*
