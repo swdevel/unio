@@ -33,14 +33,14 @@ static u32int mask = 0x00000000;
 
 static int keyboard_scancodes_is_shifted()
 {
-    int isCapsLocked = (CheckFlag(mask, CAPSLOCK_PRESSED));
-    int isLeftShiftPressed = CheckFlag(mask, LEFT_SHIFT_PRESSED);
-    int isRightShiftPressed = CheckFlag(mask, RIGHT_SHIFT_PRESSED);
+    int is_caps_locked = (CheckFlag(mask, CAPSLOCK_PRESSED));
+    int is_left_shift_pressed = CheckFlag(mask, LEFT_SHIFT_PRESSED);
+    int is_right_shift_pressed = CheckFlag(mask, RIGHT_SHIFT_PRESSED);
 
-    int capsLockWithNoShifts = isCapsLocked && !isLeftShiftPressed && !isRightShiftPressed;
-    int noCapsLockWithShifts = !isCapsLocked && (isLeftShiftPressed || isRightShiftPressed);
+    int caps_lock_with_no_shifts = is_caps_locked && !is_left_shift_pressed && !is_right_shift_pressed;
+    int no_caps_lock_with_shifts = !is_caps_locked && (is_left_shift_pressed || is_right_shift_pressed);
 
-    if (capsLockWithNoShifts || noCapsLockWithShifts)
+    if (caps_lock_with_no_shifts || no_caps_lock_with_shifts)
     {
         return TRUE;
     }

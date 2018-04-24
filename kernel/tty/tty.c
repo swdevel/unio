@@ -110,10 +110,7 @@ void tty_put_char(char c)
     }
 
     // Скролл экрана
-    if (tty_params.cursor.y >= TTY_CONSOLE_HEIGHT)
-    {
-        tty_scroll();
-    }
+    tty_scroll();
 
     tty_cursor_move_to(tty_params.cursor.x, tty_params.cursor.y);
 }

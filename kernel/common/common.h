@@ -2,19 +2,19 @@
 #define _COMMON_H_
 
 #ifndef NULL
-	#define NULL 0
+    #define NULL 0
 #endif
 
 #ifndef TRUE
-	#define TRUE 1
+    #define TRUE 1
 #endif
 
 #ifndef FALSE
-	#define FALSE 0
+    #define FALSE 0
 #endif
 
 #ifndef CHAR_BIT
-	#define CHAR_BIT 8
+    #define CHAR_BIT 8
 #endif
 
 
@@ -31,42 +31,42 @@ typedef unsigned int   size_t;
 /* Структура для описания точки */
 typedef struct
 {
-	u16int x;
-	u16int y;
+    u16int x;
+    u16int y;
 } Point;
 
 inline static void outb(u16int port, u8int value)
 {
-	asm volatile("outb %1, %0" : : "dN" (port), "a" (value));
+    asm volatile("outb %1, %0" : : "dN" (port), "a" (value));
 }
 
 inline static u8int inb(u16int port)
 {
-	u8int value;
-	asm volatile("inb %1, %0" : "=a" (value) : "dN" (port));
-	return value;
+    u8int value;
+    asm volatile("inb %1, %0" : "=a" (value) : "dN" (port));
+    return value;
 }
 
 inline static u16int inw(u16int port)
 {
-	u16int value;
-	asm volatile("inw %1, %0" : "=a" (value) : "dN" (port));
-	return value;
+    u16int value;
+    asm volatile("inw %1, %0" : "=a" (value) : "dN" (port));
+    return value;
 }
 
 inline static void outw(u16int port, u16int value)
 {
-	asm volatile("outw %1, %0" : : "dN" (port), "a" (value));
+    asm volatile("outw %1, %0" : : "dN" (port), "a" (value));
 }
 
 static inline void inl(u16int port, u32int * data)
 {
-	asm volatile ("inl %%dx, %%eax" : "=a" (*data) : "d" (port));
+    asm volatile ("inl %%dx, %%eax" : "=a" (*data) : "d" (port));
 }
 
 static inline void outl(u16int port, u32int data)
 {
-	asm volatile ("outl %%eax, %%dx" : : "a" (data), "d" (port));
+    asm volatile ("outl %%eax, %%dx" : : "a" (data), "d" (port));
 }
 
 /* Макросы для работы с битовыми масками */

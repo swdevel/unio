@@ -2,76 +2,102 @@
 
 void * memcpy(void *dest, const void *src, size_t len)
 {
-	char *d = dest;
-	const char *s = src;
+    char *d = dest;
+    const char *s = src;
 
-	while (len--)
-		*d++ = *s++;
-	return dest;
+    while (len--)
+    {
+        *d++ = *s++;
+    }
+
+    return dest;
 }
 
 void * memset(void *dest, int val, size_t len)
 {
-	uchar *ptr = dest;
+    uchar *ptr = dest;
 
-	while (len--)
-		*ptr++ = val;
-	return dest;
+    while (len--)
+    {
+        *ptr++ = val;
+    }
+
+    return dest;
 }
 
 int memcmp(const void *str1, const void *str2, size_t count)
 {
-	const uchar *s1 = str1;
-	const uchar *s2 = str2;
+    const uchar *s1 = str1;
+    const uchar *s2 = str2;
 
-	while (count--)
-	{
-		if (*s1++ != *s2++)
-			return s1[-1] < s2[-1] ? -1 : 1;
-	}
-	return 0;
+    while (count--)
+    {
+        if (*s1++ != *s2++)
+        {
+            return s1[-1] < s2[-1] ? -1 : 1;
+        }
+    }
+
+    return 0;
 }
 
 char * strcpy(char *dest, const char *src)
 {
-	char *ptr = dest;
+    char *ptr = dest;
 
-	while (*dest++ = *src++);
-	return ptr;
+    while (*dest++ = *src++);
+
+    return ptr;
 }
 
 char * strcat(char *dest, const char *src)
 {
-	char * ptr = dest;
+    char * ptr = dest;
 
-	while (*dest)
-		*dest++;
-	while (*dest++ = *src++);
-	return ptr;
+    while (*dest)
+    {
+        *dest++;
+    }
+        
+    while (*dest++ = *src++);
+
+    return ptr;
 }
 
 size_t strlen(const char *str)
 {
-	char * ptr = (char*)str;
+    char * ptr = (char*)str;
 
-	while (*ptr)
-		*ptr++;
-	return ptr - str;
+    while (*ptr)
+    {
+        *ptr++;
+    }
+
+    return ptr - str;
 }
 
 void * memmove(void * dest, const void * src, size_t len)
 {
-	char *d = dest;
-	const char *s = src;
-	if (d < s)
-		while (len--)
-			*d++ = *s++;
-	else
-	{
-		char *lasts = s + (len - 1);
-		char *lastd = d + (len - 1);
-		while (len--)
-			*lastd-- = *lasts--;
-	}
-	return dest;
+    char *d = dest;
+    const char *s = src;
+
+    if (d < s)
+    {
+        while (len--)
+        {
+            *d++ = *s++;
+        }
+    }        
+    else
+    {
+        char *lasts = s + (len - 1);
+        char *lastd = d + (len - 1);
+
+        while (len--)
+        {
+            *lastd-- = *lasts--;
+        }
+    }
+
+    return dest;
 }
