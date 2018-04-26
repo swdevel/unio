@@ -67,7 +67,7 @@ static void irq_on_page_fault_handler()
 {
 	asm("pusha");
 
-	// TODO:
+    PANIC("Page fault!");
 
 	asm("popa");
 	asm("movb $0x20, %al");
