@@ -2,9 +2,9 @@
 #include "string.h"
 #include "../memory/heap.h"
 
-s8int array_less_than_predicate_default(type_t a, type_t b)
+BOOL array_less_than_predicate_default(type_t a, type_t b)
 {
-    return (a < b) ? TRUE : FALSE;
+    return (a < b);
 }
 
 void array_init(ARRAY *array, void *addr, u32int max_size, predicate_less_than_t predicate)
@@ -40,8 +40,7 @@ void array_insert(ARRAY *array, type_t *item)
         type_t tmp = array->array[iter];
         while (iter < array->size)
         {
-            iter++;
-            type_t tmp2 = array->array[iter];
+            type_t tmp2 = array->array[++iter];
             array->array[iter] = tmp;
             tmp = tmp2;
         }

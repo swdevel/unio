@@ -24,36 +24,43 @@ extern u32int placement_addr;
 
 u32int *frames = NULL;
 
-PAGE * paging_get_page_by_address(u32int addr, u8int create_if_not_exist, PAGE_DIRECTORY *dir)
+/*
+    Функция получения страницы по заданному адресу
+*/
+PAGE * paging_get_page_by_address(u32int addr, u8int need_to_create, PAGE_DIRECTORY *dir)
 {
     u32int index;
 
-    addr /= 4096;
-    index = addr / 1024;
+    addr /= PAGE_SIZE;
+    index = addr / PAGES_PER_TABLE;
 
     // Поиск таблицы страниц, к которой относится данный адрес
     if (dir->tables[index])
     {
         // Страница уже существует
-        return &dir->tables[index]->pages[addr % 1024];
+        return &dir->tables[index]->pages[addr % PAGES_PER_TABLE];
     }
-    else if (create_if_not_exist)
+
+    // Создание страницы при её отсутствии
+    if (need_to_create)
     {
         u32int phys;
 
-        // Создание страницы
         dir->tables[index] = (PAGE_TABLE*) kmalloc(sizeof(PAGE_TABLE), TRUE, &phys);
-        memset(dir->tables[index], 0, 4096);
+        memset(dir->tables[index], 0, PAGE_SIZE);
         dir->tables_phys[index] = phys | 0x07; // Находится в памяти, доступна для записи, user space
         
-        return &dir->tables[index]->pages[addr % 1024];
+        return &dir->tables[index]->pages[addr % PAGES_PER_TABLE];
     }
     return NULL;
 }
 
+/*
+    Функция для поиска первого свободного индекса для фрейма
+*/
 static u32int paging_get_firts_free_frame_index()
 {
-    u32int n_frames = PAGING_PHYS_MEMORY_END / 4096;
+    u32int n_frames = PAGING_PHYS_MEMORY_END / PAGE_SIZE;
 
     for (int i = 0; i < INDEX_FROM_BIT(n_frames); i++)
     {
@@ -77,7 +84,7 @@ static u32int paging_get_firts_free_frame_index()
 
 static void paging_set_frame_present_bit(u32int frame_addr)
 {
-    u32int frame = frame_addr / 4096;
+    u32int frame = frame_addr / PAGE_SIZE;
     u32int index = INDEX_FROM_BIT(frame);
     u32int offset = OFFSET_FROM_BIT(frame);
 
@@ -86,13 +93,16 @@ static void paging_set_frame_present_bit(u32int frame_addr)
 
 static void paging_clear_frame_present_bit(u32int frame_addr)
 {
-    u32int frame = frame_addr / 4096;
+    u32int frame = frame_addr / PAGE_SIZE;
     u32int index = INDEX_FROM_BIT(frame);
     u32int offset = OFFSET_FROM_BIT(frame);
 
     frames[index] &= ~(0x01 << offset);
 }
 
+/*
+    Функция выделения фрейма
+*/
 static void paging_alloc_frame(PAGE *page, u8int is_kernel, u8int is_writable)
 {
     ASSERT(page != NULL);
@@ -109,14 +119,17 @@ static void paging_alloc_frame(PAGE *page, u8int is_kernel, u8int is_writable)
         PANIC("No free frames!");
     }
 
-    paging_set_frame_present_bit(index * 4096);
+    paging_set_frame_present_bit(index * PAGE_SIZE);
 
     page->present = TRUE;
-    page->rw = is_writable ? TRUE : FALSE;
-    page->user = is_kernel ? FALSE : TRUE;
+    page->rw = is_writable;
+    page->user = !is_kernel;
     page->frame = index;
 }
 
+/*
+    Функция для загрузки заданного каталога страниц в регистр cr3
+*/
 static void paging_switch_page_directory(PAGE_DIRECTORY *dir)
 {
     current_dir = dir;
@@ -128,6 +141,9 @@ static void paging_switch_page_directory(PAGE_DIRECTORY *dir)
     asm volatile("mov %0, %%cr0":: "r"(cr0));
 }
 
+/*
+    Функция настройки каталогов страниц и включения страничной адресации
+*/
 void paging_init()
 {
     u32int n_frames;
@@ -163,7 +179,7 @@ void paging_init()
         paging_alloc_frame(page, FALSE, FALSE);
     }
 
-    // Включение страничной адресации
+    // Загрузка заданного каталога страниц в регистр cr3 и включение страничной адресации
     paging_switch_page_directory(kernel_dir);
     // Создание heap ядра (для примера, пусть максимальный размер будет равен 8 мб)
     kernel_heap = heap_create(HEAP_BEGIN_ADDR, HEAP_BEGIN_ADDR + HEAP_INITIAL_SIZE, 0x00800000, FALSE, FALSE);

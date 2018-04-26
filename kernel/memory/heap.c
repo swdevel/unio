@@ -3,9 +3,9 @@
 u32int placement_addr = 0x400000;
 HEAP * kernel_heap = NULL;
 
-s8int heap_header_predicate(type_t a, type_t b)
+BOOL heap_header_predicate(type_t a, type_t b)
 {
-    return ((HEAP_BLOCK_HEADER*)a)->size < ((HEAP_BLOCK_HEADER*)b)->size ? TRUE : FALSE;
+    return (((HEAP_BLOCK_HEADER*)a)->size < ((HEAP_BLOCK_HEADER*)b)->size);
 }
 
 u32int kmalloc(u32int size, u8int align, u32int *phys)
@@ -21,16 +21,16 @@ u32int kmalloc(u32int size, u8int align, u32int *phys)
         {
             // Адрес будет выровнен по границе в 4 кб
             placement_addr &= 0xFFFFF000;
-            placement_addr += 4096;
+            placement_addr += PAGE_SIZE;
         }
         if (phys)
         {
             *phys = placement_addr;
         }
-        u32int ret = placement_addr;
+        u32int placement_addr_value = placement_addr;
         placement_addr += size;
 
-        return ret;
+        return placement_addr_value;
     }
 }
 
@@ -38,22 +38,22 @@ HEAP * heap_create(u32int start_addr, u32int end_addr, u32int max_addr, u8int is
 {
     HEAP * heap;
 
-    ASSERT(!(start_addr % 4096));
-    ASSERT(!(end_addr % 4096));
+    ASSERT(!(start_addr % PAGE_SIZE));
+    ASSERT(!(end_addr % PAGE_SIZE));
     
     heap = (HEAP*) kmalloc(sizeof(heap), FALSE, NULL);
 
     // Инициализация массива индексов
-    array_init(&heap->index, (void*) start_addr, HEAP_INDEX_SIZE, &heap_header_predicate);
+    array_init(&heap->index, (void*)start_addr, HEAP_INDEX_SIZE, &heap_header_predicate);
 
     // Получение нового свободного адреса после инициализации массива индексов
     start_addr += sizeof(type_t) * HEAP_INDEX_SIZE;
 
-    // Адрес должен быть выровнен по границе массива
+    // Адрес должен быть выровнен по границе страницы
     if (start_addr & 0xFFFFF000)
     {
         start_addr &= 0xFFFFF000;
-        start_addr += 4096;
+        start_addr += PAGE_SIZE;
     }
 
     heap->start_addr = start_addr;

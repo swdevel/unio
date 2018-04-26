@@ -17,6 +17,10 @@
     #define CHAR_BIT 8
 #endif
 
+#ifndef BOOL
+    #define BOOL int
+#endif
+
 
 typedef unsigned int   u32int;
 typedef int            s32int;

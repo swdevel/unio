@@ -10,6 +10,8 @@
 #define HEAP_INDEX_SIZE     0x00020000
 #define HEAP_MAGIC          0xdeadbeef
 
+#define PAGE_SIZE           0x1000
+
 typedef struct
 {
     u32int magic;
