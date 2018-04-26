@@ -77,4 +77,12 @@ static inline void outl(u16int port, u32int data)
 /* Макрос для подсчёта количества элементов в статическом массиве */
 #define COUNT(v) (sizeof(v)/sizeof(v[0]))
 
+/* Kernel panic и assert  */
+void panic(char *message, char *file, u32int line);
+void assert(char *file, u32int line, char *exp);
+
+#define PANIC(message) panic(message, __FILE__, __LINE__);
+#define ASSERT(exp) ((exp) ? (void)0 : assert(__FILE__, __LINE__, #exp))
+
+
 #endif /* _COMMON_H_ */
