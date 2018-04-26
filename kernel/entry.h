@@ -11,4 +11,7 @@
 // PCI bus
 #include "pci\pci.h"
 
+// memory
+#include "memory\paging.h"
+
 #endif /* _ENTRY_H_ */

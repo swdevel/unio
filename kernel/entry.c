@@ -9,6 +9,7 @@ void _start()
 	tty_put_string("kernel receive control...");
 	// Сканирование шины PCI и вывод на экран всех устройств
 	pci_scan_bus();
-
+    // Включение страничной адресации
+    paging_init();
 	while (1);
 }
