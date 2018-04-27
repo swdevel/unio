@@ -78,9 +78,7 @@ static void pci_trace_device_header(PCI_DEV_HEADER * pci_dev_header, u32int bus,
     char *ptr;
     int len;
 
-    len = sprintf(str, "PCI:%d:%d:%d VID = 0x%x, PID = 0x%x", bus, device, function,
-                       pci_dev_header->option.vendor_id,
-                       pci_dev_header->option.device_id);
+    len = sprintf(str, "PCI:%d:%d:%d", bus, device, function);
 
     ptr = pci_get_class_name_by_code(pci_dev_header->option.class_code);
     if (ptr)
@@ -110,7 +108,7 @@ void pci_scan_bus()
             {
                 continue;
             }
-
+#if 0
             for (int function = 1; function < PCI_MAX_FUNCTIONS; function++)
             {
                 if (!pci_read_device_header(&pci_dev_header, bus, device, function))
@@ -119,6 +117,7 @@ void pci_scan_bus()
                 }
                 pci_trace_device_header(&pci_dev_header, bus, device, function);
             }
+#endif
         }
     }
 }
