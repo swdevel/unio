@@ -237,7 +237,7 @@ static void free(HEAP *heap, void *ptr)
     BOOL must_be_added_to_the_array = TRUE;
 
     // Попытка слияния текущего блока с предшествующим блоком, если он так же свободен
-    HEAP_BLOCK_FOOTER * test_footer = (HEAP_BLOCK_FOOTER*)(header - sizeof(HEAP_BLOCK_FOOTER));
+    HEAP_BLOCK_FOOTER * test_footer = (HEAP_BLOCK_FOOTER*)((u32int)header - sizeof(HEAP_BLOCK_FOOTER));
     if (test_footer->magic == HEAP_MAGIC && test_footer->header->is_free)
     {
         u32int cache_size = header->size;
@@ -249,7 +249,7 @@ static void free(HEAP *heap, void *ptr)
     }
 
     // Попытка слияния текущего блока с последующим блоком, если он так же свободен
-    HEAP_BLOCK_HEADER * test_header = (HEAP_BLOCK_HEADER*)(footer + sizeof(HEAP_BLOCK_FOOTER));
+    HEAP_BLOCK_HEADER * test_header = (HEAP_BLOCK_HEADER*)((u32int)footer + sizeof(HEAP_BLOCK_FOOTER));
     if (test_header->magic == HEAP_MAGIC && test_footer->header->is_free)
     {
         header->size += test_header->size;
