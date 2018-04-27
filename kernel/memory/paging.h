@@ -66,5 +66,9 @@ void paging_init();
     Функция получения страницы по заданному адресу
 */
 PAGE * paging_get_page_by_address(u32int addr, u8int need_to_create, PAGE_DIRECTORY *dir);
+/*
+    Функция выделения фрейма
+*/
+void paging_alloc_frame(PAGE *page, u8int is_kernel, u8int is_writable);
 
 #endif /* _PAGING_H_ */

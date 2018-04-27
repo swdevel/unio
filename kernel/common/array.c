@@ -9,6 +9,8 @@ BOOL array_less_than_predicate_default(type_t a, type_t b)
 
 void array_init(ARRAY *array, void *addr, u32int max_size, predicate_less_than_t predicate)
 {
+    ASSERT(array && addr);
+
     array->array = addr;
     memset(addr, 0, max_size * sizeof(type_t));
     array->predicate = predicate;
@@ -46,4 +48,32 @@ void array_insert(ARRAY *array, type_t *item)
         }
         array->size++;
     }
+}
+
+type_t array_find(ARRAY *array, u32int index)
+{
+    ASSERT(array);
+
+    if (index >= array->max_size)
+        return NULL; // Ошибка
+
+    return array->array[index];
+}
+
+type_t array_remove(ARRAY *array, u32int index)
+{
+    type_t return_value;
+
+    if (index >= array->max_size)
+        return NULL; // Ошибка
+
+    return_value = array_find(array, index);
+
+    while (index < array->size)
+    {
+        array->array[index] = array->array[index++];
+    }
+    array->size--;
+
+    return return_value;
 }

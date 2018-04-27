@@ -103,7 +103,7 @@ static void paging_clear_frame_present_bit(u32int frame_addr)
 /*
     Функция выделения фрейма
 */
-static void paging_alloc_frame(PAGE *page, u8int is_kernel, u8int is_writable)
+void paging_alloc_frame(PAGE *page, u8int is_kernel, u8int is_writable)
 {
     ASSERT(page != NULL);
 
