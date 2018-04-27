@@ -70,5 +70,9 @@ PAGE * paging_get_page_by_address(u32int addr, u8int need_to_create, PAGE_DIRECT
     Функция выделения фрейма
 */
 void paging_alloc_frame(PAGE *page, u8int is_kernel, u8int is_writable);
+/*
+    Функция освобождения фрейма
+*/
+void paging_free_frame(PAGE *page);
 
 #endif /* _PAGING_H_ */

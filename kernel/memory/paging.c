@@ -1,6 +1,4 @@
 ﻿#include "paging.h"
-#include "../tty/tty.h"
-#include "../common/stdio.h"
 
 /*
     Указатель на каталог страниц ядра
@@ -125,6 +123,20 @@ void paging_alloc_frame(PAGE *page, u8int is_kernel, u8int is_writable)
     page->rw = is_writable;
     page->user = !is_kernel;
     page->frame = index;
+}
+
+/*
+    Функция освобождения фрейма
+*/
+void paging_free_frame(PAGE *page)
+{
+    u32int frame;
+    if (!(frame = page->frame))
+    {
+        return;
+    }
+    paging_clear_frame_present_bit(frame);
+    page->frame = NULL;
 }
 
 /*

@@ -53,10 +53,8 @@ void array_insert(ARRAY *array, type_t *item)
 type_t array_find(ARRAY *array, u32int index)
 {
     ASSERT(array);
-
-    if (index >= array->max_size)
-        return NULL; // Ошибка
-
+    ASSERT(index < array->size);
+ 
     return array->array[index];
 }
 

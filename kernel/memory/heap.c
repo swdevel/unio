@@ -16,7 +16,7 @@ BOOL heap_header_predicate(type_t a, type_t b)
 */
 static s32int heap_find_smallest_chunk(HEAP *heap, u8int align, u32int size)
 {
-    u32int iter;
+    u32int iter = 0;
 
     while (iter < heap->index.size)
     {
@@ -24,7 +24,7 @@ static s32int heap_find_smallest_chunk(HEAP *heap, u8int align, u32int size)
         if (align)
         {
             u32int location = (u32int)header;
-            s32int offset;
+            s32int offset = 0;
 
             if ((location + sizeof(HEAP_BLOCK_HEADER)) & 0xfffff000)
                 offset = PAGE_SIZE - (location + sizeof(HEAP_BLOCK_HEADER)) % PAGE_SIZE;
@@ -78,7 +78,7 @@ static void * malloc(HEAP *heap, u8int align, u32int size)
     // Вычисление нового размера для блока с учётом хедера и футера
     u32int new_size = size + sizeof(HEAP_BLOCK_HEADER) + sizeof(HEAP_BLOCK_FOOTER);
     // Попытка поиска наименьшего подходящего фрагмента памяти
-    s32int iter = heap_find_smallest_chunk(kernel_heap, align, size);
+    s32int iter = heap_find_smallest_chunk(kernel_heap, align, new_size);
 
     // Подходящий фрагмент памяти не был найден
     if (iter == -1)
@@ -87,7 +87,7 @@ static void * malloc(HEAP *heap, u8int align, u32int size)
         u32int old_end_addr = heap->end_addr;
 
         // Необходимо выделить больше места
-        heap_expand(heap, old_heap_length + size);
+        heap_expand(heap, old_heap_length + new_size);
         u32int new_heap_length = heap->end_addr - heap->start_addr;
 
         // Поиск финального хедера
@@ -165,7 +165,7 @@ static void * malloc(HEAP *heap, u8int align, u32int size)
     // Перезапись оригинального хедера и футера
     HEAP_BLOCK_HEADER * header = (HEAP_BLOCK_HEADER *)orig_chunk_pos;
     header->magic = HEAP_MAGIC;
-    header->is_free = TRUE;
+    header->is_free = FALSE;
     header->size = new_size;
 
     HEAP_BLOCK_FOOTER * footer = (HEAP_BLOCK_FOOTER*)(orig_chunk_pos + sizeof(HEAP_BLOCK_HEADER) + size);
@@ -190,12 +190,110 @@ static void * malloc(HEAP *heap, u8int align, u32int size)
         array_insert(&heap->index, (void*)chunk_header);
     }
 
-    return (void*)(header + sizeof(HEAP_BLOCK_HEADER));
+    return (void*)((u32int)header + sizeof(HEAP_BLOCK_HEADER));
+}
+
+static u32int heap_contract(HEAP *heap, u32int new_size)
+{
+    ASSERT(new_size < heap->end_addr - heap->start_addr);
+
+    if (new_size & PAGE_SIZE)
+    {
+        new_size &= PAGE_SIZE;
+        new_size += PAGE_SIZE;
+    }
+
+    if (new_size < HEAP_MIN_SIZE)
+        new_size = HEAP_MIN_SIZE;
+
+    u32int old_size = heap->end_addr - heap->start_addr;
+    u32int i = old_size - PAGE_SIZE;
+    while (new_size < i)
+    {
+        PAGE * page = paging_get_page_by_address(heap->start_addr + i, FALSE, kernel_dir);
+        ASSERT(page);
+        paging_free_frame(page);
+        i -= PAGE_SIZE;
+    }
+
+    heap->end_addr = heap->start_addr + new_size;
+    return new_size;
 }
 
 static void free(HEAP *heap, void *ptr)
 {
-    // TODO:
+    ASSERT(heap);
+    ASSERT(ptr);
+
+    HEAP_BLOCK_HEADER * header = (HEAP_BLOCK_HEADER*)((u32int)ptr - sizeof(HEAP_BLOCK_HEADER));
+    HEAP_BLOCK_FOOTER * footer = (HEAP_BLOCK_FOOTER*)((u32int)header + header->size - sizeof(HEAP_BLOCK_FOOTER));
+
+    ASSERT(header->magic == HEAP_MAGIC);
+    ASSERT(footer->magic == HEAP_MAGIC);
+
+    // Блока помечается как свободный
+    header->is_free = TRUE;
+
+    BOOL must_be_added_to_the_array = TRUE;
+
+    // Попытка слияния текущего блока с предшествующим блоком, если он так же свободен
+    HEAP_BLOCK_FOOTER * test_footer = (HEAP_BLOCK_FOOTER*)(header - sizeof(HEAP_BLOCK_FOOTER));
+    if (test_footer->magic == HEAP_MAGIC && test_footer->header->is_free)
+    {
+        u32int cache_size = header->size;
+        header = test_footer->header;
+        footer->header = header;
+        header->size += cache_size;
+
+        must_be_added_to_the_array = FALSE;
+    }
+
+    // Попытка слияния текущего блока с последующим блоком, если он так же свободен
+    HEAP_BLOCK_HEADER * test_header = (HEAP_BLOCK_HEADER*)(footer + sizeof(HEAP_BLOCK_FOOTER));
+    if (test_header->magic == HEAP_MAGIC && test_footer->header->is_free)
+    {
+        header->size += test_header->size;
+        test_footer = (HEAP_BLOCK_FOOTER*)(test_header + test_header->size - sizeof(HEAP_BLOCK_FOOTER));
+
+        footer = test_footer;
+
+        // Поиск и удаление данного хедера из массива
+        u32int iter = 0;
+        while ((iter < heap->index.size) && array_find(&heap->index, iter) != (void*) test_header)
+        {
+            iter++;
+        }
+        ASSERT(iter < heap->index.size);
+        array_remove(&heap->index, iter);
+    }
+
+    if ((u32int)footer + sizeof(HEAP_BLOCK_FOOTER) == heap->end_addr)
+    {
+        u32int old_heap_length = heap->end_addr - heap->start_addr;
+        u32int new_heap_length = heap_contract(heap, (u32int)header - heap->start_addr);
+
+        if (header->size - (old_heap_length - new_heap_length))
+        {
+            header->size -= old_heap_length - new_heap_length;
+            footer = (HEAP_BLOCK_FOOTER*)((u32int)header + header->size - sizeof(HEAP_BLOCK_FOOTER));
+            footer->magic = HEAP_MAGIC;
+            footer->header = header;
+        }
+        else
+        {
+            u32int iter = 0;
+            while ((iter < heap->index.size) && array_find(&heap->index, iter) != (void*)test_header)
+            {
+                iter++;
+            }
+            if (iter < heap->index.size)
+                array_remove(&heap->index, iter);
+        }
+    }
+
+    // Добавление блока в массив
+    if (must_be_added_to_the_array)
+        array_insert(&heap->index, (void*)header);
 }
 
 u32int kmalloc(u32int size, u8int align, u32int *phys)
