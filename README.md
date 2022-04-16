@@ -92,3 +92,5 @@ set OBJCOPY="путь\к\файлу\objcopy.exe"
 ![alt text](https://raw.githubusercontent.com/swdevel/unio/master/man/images/setup_wm_07.png)
 
 </details>
+
+На этапах 6 и 7 необходимо добавить новое устройство типа `Floppy Drive` и в качестве образа дискеты указать путь к файлу `boot.img`
