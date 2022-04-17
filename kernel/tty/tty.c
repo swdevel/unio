@@ -1,132 +1,127 @@
 ﻿#include "tty.h"
-    
-TTY_PARAMS tty_params = {{0, 0}, TTY_COLOR_BLACK << 4 | TTY_COLOR_LIGHTGREEN};
-s16int *fb_addr = (s16int*)TTY_FRAME_BUFFER_ADDR;
 
-/*
-    Функция скролла экрана
-*/
-static void tty_scroll()
+u16int* frame_buffer = (u16int*) TTY_FRAME_BUFFER_ADDR;
+
+TTY_STATE state = {
+    .cursor.x = 0,
+    .cursor.y = 0,
+    .color = TTY_COLOR_BLACK << 4 | TTY_COLOR_LIGHTGREEN
+};
+
+inline static u16int tty_get_frame_buffer_offset()
 {
-    int size = TTY_CONSOLE_WIDTH * (TTY_CONSOLE_HEIGHT - 1);
-    u8int blank = 0x20; // Код символа "пробел"
-
-    if (tty_params.cursor.y >= TTY_CONSOLE_HEIGHT)
-    {
-        for (int i = 0; i < size; i++)
-        {
-            fb_addr[i] = fb_addr[i + TTY_CONSOLE_WIDTH];
-        }
-            
-        for (int i = size; i < TTY_CONSOLE_WIDTH * TTY_CONSOLE_HEIGHT; i++)
-        {
-            fb_addr[i] = blank | (tty_params.color << 8);
-        }
-
-        tty_params.cursor.y = TTY_CONSOLE_HEIGHT - 1;
-    }
+    return state.cursor.x + state.cursor.y * TTY_CONSOLE_WIDTH;
 }
 
-/*
-    Функция установки курсора по заданным координатам
-*/
-void tty_cursor_move_to(const u16int x, const u16int y)
+static void tty_scroll_screen()
 {
-    u16int position;
+    const u16int last = TTY_CONSOLE_WIDTH * (TTY_CONSOLE_HEIGHT - 1);
 
-    if (x > TTY_CONSOLE_WIDTH || y > TTY_CONSOLE_HEIGHT)
-    {
+    for (u16int i = 0; i < last; i++)
+        frame_buffer[i] = frame_buffer[i + TTY_CONSOLE_WIDTH];
+
+    const u8int blank = 0x20; // Код символа "пробел"
+
+    for (u16int i = last; i < TTY_CONSOLE_WIDTH * TTY_CONSOLE_HEIGHT; i++)
+        frame_buffer[i] = blank | (state.color << 8);
+
+    state.cursor.y = TTY_CONSOLE_HEIGHT - 1;
+}
+
+static void tty_move_cursor_to(const u16int x, const u16int y)
+{
+    if (x >= TTY_CONSOLE_WIDTH || y >= TTY_CONSOLE_HEIGHT)
         return;
-    }
 
-    tty_params.cursor.x = x;
-    tty_params.cursor.y = y;
+    state.cursor.x = x;
+    state.cursor.y = y;
 
-    position = tty_params.cursor.y * TTY_CONSOLE_WIDTH + tty_params.cursor.x;
+    const u16int offset = tty_get_frame_buffer_offset();
+
     // Установка младшего байта позиции курсора
     outb(0x3D4, 0x0F); 
-    outb(0x3D5, position & 0xFF);
+    outb(0x3D5, offset & 0xFF);
+
     // Установка старшего байта позиции курсора
     outb(0x3D4, 0x0E); 
-    outb(0x3D5, (position >> 8) & 0xFF);
+    outb(0x3D5, (offset >> 8) & 0xFF);
 }
 
-/*
-    Функция очистки экрана
-*/
+static void tty_reset_state()
+{
+    state.cursor.x = 0;
+    state.cursor.y = 0;
+
+    state.color = TTY_COLOR_BLACK << 4 | TTY_COLOR_LIGHTGREEN;
+}
+
+void tty_init()
+{
+    tty_reset_state();
+    tty_clear_screen();
+}
+
 void tty_clear_screen()
 {
-    u8int blank = 0x20; // Код символа "пробел"
+    const u8int blank = 0x20; // Код символа "пробел"
 
-    for (int i = 0; i < TTY_CONSOLE_WIDTH * TTY_CONSOLE_HEIGHT; i++)
-    {
-        fb_addr[i] = blank | (tty_params.color << 8);
-    }
+    for (u16int i = 0; i < TTY_CONSOLE_WIDTH * TTY_CONSOLE_HEIGHT; i++)
+        frame_buffer[i] = blank | (state.color << 8);
 
-    tty_cursor_move_to(0, 0);
+    tty_move_cursor_to(0, 0);
 }
 
-/*
-    Функция вывода символа на экран в текущих координатах
-*/
+void tty_put_string(const char* string)
+{
+    if (!string)
+        return;
+
+    char* ptr = string;
+
+    while (*ptr != '\0')
+        tty_put_char(*ptr++);
+}
+
 void tty_put_char(const char c)
 {
-    u16int offset;
-
     switch (c)
     {
     case '\n':
         // Перенос строки
-        tty_params.cursor.x = 0;
-        tty_params.cursor.y++;
+        state.cursor.x = 0;
+        state.cursor.y++;
         break;
+
     case '\r':
         // Возврат каретки на начало строки
-        tty_params.cursor.x = 0;
+        state.cursor.x = 0;
         break;
+
     case 0x08:
         // Возврат каретки на одну позицию
-        if (tty_params.cursor.x > 0)
-        {
-            tty_params.cursor.x--;
-        }
+        if (state.cursor.x > 0)
+            state.cursor.x--;
         break;
+
     case '\t':
         // Табуляция
-        tty_params.cursor.x = (tty_params.cursor.x + 8) & ~7;
+        state.cursor.x = (state.cursor.x + 8) & ~7;
         break;
+
     default:
-        // Вывод всех остальных символов
-        offset = tty_params.cursor.x + tty_params.cursor.y * TTY_CONSOLE_WIDTH;
-        fb_addr[offset] = c | (tty_params.color << 8);
-        tty_params.cursor.x++;
+        frame_buffer[tty_get_frame_buffer_offset()] = c | (state.color << 8);
+        state.cursor.x++;
         break;
     }
 
-    if (tty_params.cursor.x >= TTY_CONSOLE_WIDTH)
+    if (state.cursor.x >= TTY_CONSOLE_WIDTH)
     {
-        tty_params.cursor.x = 0;
-        tty_params.cursor.y++;
+        state.cursor.x = 0;
+        state.cursor.y++;
     }
 
-    // Скролл экрана
-    tty_scroll();
+    if (state.cursor.y >= TTY_CONSOLE_HEIGHT)
+        tty_scroll_screen();
 
-    tty_cursor_move_to(tty_params.cursor.x, tty_params.cursor.y);
-}
-
-/*
-    Функция вывода строки на экран в текущих координатах
-*/
-void tty_put_string(const char *str)
-{
-    char * ptr = str;
-
-    if (!ptr)
-        return;
-
-    while (*ptr != '\0')
-    {
-        tty_put_char(*ptr++);
-    }
+    tty_move_cursor_to(state.cursor.x, state.cursor.y);
 }

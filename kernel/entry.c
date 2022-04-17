@@ -6,7 +6,7 @@ void _start()
     irq_init();
 
     // Очистка экрана от сообщения загрузчика и вывод сообщения и получении контроля ядром
-    tty_clear_screen();
+    tty_init();
     tty_put_string("Kernel received control from boot loader\n");
 
     // Сканирование шины PCI и вывод на экран всех устройств

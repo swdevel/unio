@@ -8,6 +8,7 @@
 
 /* Количество символов в строке */
 #define TTY_CONSOLE_WIDTH   80
+
 /* Количество строк на экране */
 #define TTY_CONSOLE_HEIGHT  25
 
@@ -40,11 +41,14 @@ typedef struct
         .... xxxx - Цвет текста (может принимать значения от 0x00 до 0x0F)
     */
     u8int color;    // Атрибут (цвет фона и буквы) следующего символа, который будет напечатан в консоли
-} TTY_PARAMS;
+} TTY_STATE;
 
-void tty_cursor_move_to(const u16int x, const u16int y);
+void tty_init();
+
 void tty_clear_screen();
+
+void tty_put_string(const char* string);
+
 void tty_put_char(const char c);
-void tty_put_string(const char *str);
 
 #endif /* _TTY_H_ */
