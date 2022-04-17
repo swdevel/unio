@@ -42,9 +42,9 @@ typedef struct
     u8int color;    // Атрибут (цвет фона и буквы) следующего символа, который будет напечатан в консоли
 } TTY_PARAMS;
 
-void tty_cursor_move_to(u16int x, u16int y);
+void tty_cursor_move_to(const u16int x, const u16int y);
 void tty_clear_screen();
-void tty_put_char(char c);
-void tty_put_string(char *str);
+void tty_put_char(const char c);
+void tty_put_string(const char *str);
 
 #endif /* _TTY_H_ */

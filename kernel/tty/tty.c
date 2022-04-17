@@ -30,7 +30,7 @@ static void tty_scroll()
 /*
     Функция установки курсора по заданным координатам
 */
-void tty_cursor_move_to(u16int x, u16int y)
+void tty_cursor_move_to(const u16int x, const u16int y)
 {
     u16int position;
 
@@ -69,7 +69,7 @@ void tty_clear_screen()
 /*
     Функция вывода символа на экран в текущих координатах
 */
-void tty_put_char(char c)
+void tty_put_char(const char c)
 {
     u16int offset;
 
@@ -118,7 +118,7 @@ void tty_put_char(char c)
 /*
     Функция вывода строки на экран в текущих координатах
 */
-void tty_put_string(char *str)
+void tty_put_string(const char *str)
 {
     char * ptr = str;
 
