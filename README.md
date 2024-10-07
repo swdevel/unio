@@ -23,16 +23,20 @@
 ----
 Для сборки проекта необходимо установить следующий набор программ:
 
-1. MinGW
-2. NASM под Windows
+1. [MinGW](https://winlibs.com/#download-release)
+```
+Следует использовать версию mingw для win32 или модифицировать файл build.bat таким образом, чтобы сборка ядра выполнялась для режима x32.
+Во втором случае следует использовать ключи: "-m32" и "-m i386pe"
+```
+2. [NASM под Windows](https://www.nasm.us/)
 
 После установки необходимо отредактировать файл build.bat и прописать значения для следующих переменных:
 
 ```
-set CC="путь\к\файлу\gcc.exe"
-set LD="путь\к\файлу\ld.exe"
-set NASM="путь\к\файлу\nasm.exe"
-set OBJCOPY="путь\к\файлу\objcopy.exe"
+set CC="%PATH%\gcc.exe"
+set LD="%PATH%\ld.exe"
+set NASM="%PATH%\nasm.exe"
+set OBJCOPY="%PATH%\objcopy.exe"
 ```
 
 После редактирования необходимо запустить сборочный скрипт `build.bat`

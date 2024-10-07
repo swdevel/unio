@@ -1,10 +1,10 @@
 echo on
 
 rem Set paths
-set CC="C:\MinGW\bin\gcc.exe"
-set LD="C:\MinGW\bin\ld.exe"
-set NASM="C:\Program Files\NASM\nasm.exe"
-set OBJCOPY="C:\MinGW\bin\objcopy.exe"
+set CC="%PATH%\gcc.exe"
+set LD="%PATH%\ld.exe"
+set NASM="%PATH%\nasm.exe"
+set OBJCOPY="%PATH%\objcopy.exe"
 
 rem Set build directory
 set BUILD_DIR=build
